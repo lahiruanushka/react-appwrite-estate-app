@@ -14,12 +14,13 @@ import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Busine
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
   const [formErrors, setFormErrors] = useState({});
-  const { name, email, password } = formData;
+  const { firstName, lastName, email, password } = formData;
 
   function onChange(e) {
     setFormData((prevState) => ({
@@ -30,12 +31,14 @@ const SignUp = () => {
 
   const validateForm = () => {
     const errors = {};
-    
-    if (!name) errors.name = "Full Name is required";
+
+    if (!firstName) errors.firstName = "First Name is required";
+    if (!lastName) errors.lastName = "Last Name is required";
     if (!email) errors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
     if (!password) errors.password = "Password is required";
-    else if (password.length < 6) errors.password = "Password must be at least 6 characters";
+    else if (password.length < 6)
+      errors.password = "Password must be at least 6 characters";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -78,24 +81,49 @@ const SignUp = () => {
               </h1>
 
               <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                {/* Name Input */}
+                {/* First Name Input */}
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">Full Name</span>
+                    <span className="label-text">First Name</span>
                   </label>
                   <label className="input input-bordered flex items-center gap-2">
                     <LuUser className="w-4 h-4 opacity-70" />
                     <input
                       type="text"
-                      id="name"
-                      value={name}
+                      id="firstName"
+                      value={firstName}
                       onChange={onChange}
-                      placeholder="Enter your full name"
+                      placeholder="Enter your first name"
                       className="grow"
                     />
                   </label>
-                  {formErrors.name && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.name}</p>
+                  {formErrors.firstName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.firstName}
+                    </p>
+                  )}
+                </div>
+
+                {/* Last Name Input */}
+                <div className="form-control">
+                  <label className="label">
+                    <span className="label-text">Last Name</span>
+                  </label>
+                  <label className="input input-bordered flex items-center gap-2">
+                    <LuUser className="w-4 h-4 opacity-70" />
+                    <input
+                      type="text"
+                      id="lastName"
+                      value={lastName}
+                      onChange={onChange}
+                      placeholder="Enter your last name"
+                      className="grow"
+                    />
+                  </label>
+                  {formErrors.lastName && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.lastName}
+                    </p>
                   )}
                 </div>
 
@@ -116,7 +144,9 @@ const SignUp = () => {
                     />
                   </label>
                   {formErrors.email && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.email}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.email}
+                    </p>
                   )}
                 </div>
 
@@ -148,7 +178,9 @@ const SignUp = () => {
                     </button>
                   </label>
                   {formErrors.password && (
-                    <p className="text-red-500 text-sm mt-1">{formErrors.password}</p>
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.password}
+                    </p>
                   )}
                 </div>
 
