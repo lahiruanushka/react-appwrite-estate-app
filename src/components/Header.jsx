@@ -1,8 +1,16 @@
 import { LuMenu, LuMoon, LuSun, LuHome, LuGift, LuUser } from "react-icons/lu";
+import { useDispatch, useSelector } from "react-redux";
 import { Link, useLocation } from "react-router-dom";
+import { logoutUser } from "../redux/slices/userSlice";
 
 const Header = () => {
   const location = useLocation();
+  const dispatch = useDispatch();
+  const { user, isAuthenticated } = useSelector((state) => state.user);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
 
   const toggleTheme = () => {
     document.documentElement.setAttribute(
@@ -89,16 +97,37 @@ const Header = () => {
           <LuMoon className="swap-off h-5 w-5" />
         </label>
 
-        {/* Sign In Button */}
-        <Link
-          to="/sign-in"
-          className={`btn btn-primary ${
-            isActive("/sign-in") ? "btn-active" : ""
-          }`}
-        >
-          <LuUser className="h-5 w-5 mr-2" />
-          Sign In
-        </Link>
+        {isAuthenticated ? (
+          <>
+            <Link
+              to="/profile"
+              className="text-sm text-gray-600 dark:text-gray-300 font-medium cursor-pointer"
+            >
+              Welcome,{" "}
+              <span className="text-primary font-semibold">{user?.name}</span>!
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="btn btn-outline btn-primary btn-sm ml-2"
+            >
+              Logout
+            </button>
+          </>
+        ) : (
+          <>
+            {/* Sign In Button */}
+            <Link
+              to="/sign-in"
+              className={`btn btn-primary ${
+                isActive("/sign-in") ? "btn-active" : ""
+              }`}
+            >
+              <LuUser className="h-5 w-5 mr-2" />
+              Sign In
+            </Link>
+          </>
+        )}
       </div>
     </div>
   );

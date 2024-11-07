@@ -1,13 +1,10 @@
+import { useSelector } from "react-redux";
 import { Navigate } from "react-router-dom";
-import { useAuthStatus } from "../hooks/useAuthStatus";
-import Loading from "./Loading";
 
 const ProtectedRoute = ({ children }) => {
-  const { loggedIn, checkingStatus } = useAuthStatus();
+  const { isAuthenticated } = useSelector((state) => state.user);
 
-  if (checkingStatus) return <Loading />; // Show loading state
-
-  if (loggedIn) {
+  if (isAuthenticated) {
     // If user is authenticated, redirect to the home
     return <Navigate to="/profile" />;
   }
