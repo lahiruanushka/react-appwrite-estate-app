@@ -12,6 +12,7 @@ import OAuth from "../components/OAuth";
 import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Businessman buying a house with hand giving keys and house_.jfif";
 import { account } from "../lib/appwrite";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { handleSignup } from "../lib/auth";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,12 +28,20 @@ const SignUp = () => {
   const { name, email, password } = formData;
   const navigate = useNavigate();
 
-  function onChange(e) {
+  const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
-  }
+    // Clear errors when user starts typing
+    if (formErrors[e.target.id]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [e.target.id]: null,
+      }));
+    }
+    setError(null);
+  };
 
   const validateForm = () => {
     const errors = {};
@@ -41,8 +50,8 @@ const SignUp = () => {
     if (!email) errors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
     if (!password) errors.password = "Password is required";
-    else if (password.length < 6)
-      errors.password = "Password must be at least 6 characters";
+    else if (password.length < 8)
+      errors.password = "Password must be at least 8 characters";
 
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -53,17 +62,11 @@ const SignUp = () => {
     if (validateForm()) {
       try {
         setLoading(true);
-        const response = await account.create(
-          "unique()",
-          formData.email,
-          formData.password,
-          formData.name
-        );
-
-        navigate("/");
+        await handleSignup(formData.name, formData.email, formData.password); // Call signup function
+        navigate("/"); // Redirect to main page after successful signup
       } catch (error) {
         console.error("Error during signup:", error);
-        setError("Failed to create your account. Please try again!");
+        setError("Failed to create your account. Please try again later");
       } finally {
         setLoading(false);
       }

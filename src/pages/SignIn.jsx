@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { LuArrowRight, LuEye, LuEyeOff, LuLock, LuMail } from "react-icons/lu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Image from "../assets/images/House Finding On Real Estate Company Stock Vector.jfif";
+import { account } from "../lib/appwrite";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { handleLogin } from "../lib/auth";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -10,40 +13,56 @@ const SignIn = () => {
     email: "",
     password: "",
   });
-  const [errors, setErrors] = useState({});
+  const [formErrors, setFormErrors] = useState({});
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
   const { email, password } = formData;
+  const navigate = useNavigate();
 
   const onChange = (e) => {
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
+    // Clear errors when user starts typing
+    if (formErrors[e.target.id]) {
+      setFormErrors((prev) => ({
+        ...prev,
+        [e.target.id]: null,
+      }));
+    }
+    setError(null);
   };
 
   const validateForm = () => {
     const errors = {};
-    if (!email) {
-      errors.email = "Email is required";
-    } else if (!/\S+@\S+\.\S+/.test(email)) {
-      errors.email = "Email address is invalid";
-    }
-    if (!password) {
-      errors.password = "Password is required";
-    } else if (password.length < 6) {
-      errors.password = "Password must be at least 6 characters long";
-    }
-    return errors;
+
+    if (!email) errors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
+    if (!password) errors.password = "Password is required";
+    else if (password.length < 8)
+      errors.password = "Password must be at least 8 characters";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const formErrors = validateForm();
-    if (Object.keys(formErrors).length > 0) {
-      setErrors(formErrors);
-    } else {
-      setErrors({});
-      console.log(formData);
-      // Proceed with form submission or authentication
+    setError(null);
+
+    if (validateForm()) {
+      try {
+        setLoading(true);
+        await handleLogin(formData.email, formData.password); // Call login function
+        navigate("/"); // Redirect to main page after successful login
+      } catch (error) {
+        console.error("Error during login:", error); // Handle errors appropriately
+        setError("Failed to login. Please try again");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -93,8 +112,10 @@ const SignIn = () => {
                       className="grow"
                     />
                   </label>
-                  {errors.email && (
-                    <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                  {formErrors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.email}
+                    </p>
                   )}
                 </div>
 
@@ -131,15 +152,35 @@ const SignIn = () => {
                       )}
                     </button>
                   </label>
-                  {errors.password && (
-                    <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                  {formErrors.password && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {formErrors.password}
+                    </p>
                   )}
                 </div>
 
+                {error && (
+                  <div className="alert alert-error">
+                    <span>{error}</span>
+                  </div>
+                )}
+
                 {/* Sign In Button */}
-                <button className="btn btn-primary w-full mt-4" type="submit">
-                  Sign in
-                  <LuArrowRight className="w-4 h-4" />
+                <button
+                  className={`btn w-full mt-4 flex items-center justify-center ${
+                    loading ? "bg-gray-400 cursor-not-allowed" : "btn-primary"
+                  }`}
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <AiOutlineLoading3Quarters className="animate-spin w-5 h-5" />
+                  ) : (
+                    <>
+                      Sign in
+                      <LuArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
                 </button>
 
                 {/* Divider */}
