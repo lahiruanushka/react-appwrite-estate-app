@@ -3,9 +3,9 @@ import { LuArrowRight, LuEye, LuEyeOff, LuLock, LuMail } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Image from "../assets/images/House Finding On Real Estate Company Stock Vector.jfif";
-import { account } from "../lib/appwrite";
+import { account } from "../appwrite/appwrite";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { handleLogin } from "../lib/auth";
+import { handleLogin } from "../appwrite/auth";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);

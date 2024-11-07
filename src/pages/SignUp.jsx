@@ -10,9 +10,9 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Businessman buying a house with hand giving keys and house_.jfif";
-import { account } from "../lib/appwrite";
+import { account } from "../appwrite/appwrite";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { handleSignup } from "../lib/auth";
+import { handleSignup } from "../appwrite/auth";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
