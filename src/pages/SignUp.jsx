@@ -7,20 +7,25 @@ import {
   LuMail,
   LuUser,
 } from "react-icons/lu";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Businessman buying a house with hand giving keys and house_.jfif";
+import { account } from "../lib/appwrite";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
   });
   const [formErrors, setFormErrors] = useState({});
-  const { firstName, lastName, email, password } = formData;
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const { name, email, password } = formData;
+  const navigate = useNavigate();
 
   function onChange(e) {
     setFormData((prevState) => ({
@@ -32,8 +37,7 @@ const SignUp = () => {
   const validateForm = () => {
     const errors = {};
 
-    if (!firstName) errors.firstName = "First Name is required";
-    if (!lastName) errors.lastName = "Last Name is required";
+    if (!name) errors.name = "Name is required";
     if (!email) errors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(email)) errors.email = "Email is invalid";
     if (!password) errors.password = "Password is required";
@@ -44,10 +48,25 @@ const SignUp = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log(formData);
+      try {
+        setLoading(true);
+        const response = await account.create(
+          "unique()",
+          formData.email,
+          formData.password,
+          formData.name
+        );
+
+        navigate("/");
+      } catch (error) {
+        console.error("Error during signup:", error);
+        setError("Failed to create your account. Please try again!");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -81,48 +100,25 @@ const SignUp = () => {
               </h1>
 
               <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                {/* First Name Input */}
+                {/*  Name Input */}
                 <div className="form-control">
                   <label className="label">
-                    <span className="label-text">First Name</span>
+                    <span className="label-text">Name</span>
                   </label>
                   <label className="input input-bordered flex items-center gap-2">
                     <LuUser className="w-4 h-4 opacity-70" />
                     <input
                       type="text"
-                      id="firstName"
-                      value={firstName}
+                      id="name"
+                      value={name}
                       onChange={onChange}
-                      placeholder="Enter your first name"
+                      placeholder="Enter your name"
                       className="grow"
                     />
                   </label>
-                  {formErrors.firstName && (
+                  {formErrors.name && (
                     <p className="text-red-500 text-sm mt-1">
-                      {formErrors.firstName}
-                    </p>
-                  )}
-                </div>
-
-                {/* Last Name Input */}
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Last Name</span>
-                  </label>
-                  <label className="input input-bordered flex items-center gap-2">
-                    <LuUser className="w-4 h-4 opacity-70" />
-                    <input
-                      type="text"
-                      id="lastName"
-                      value={lastName}
-                      onChange={onChange}
-                      placeholder="Enter your last name"
-                      className="grow"
-                    />
-                  </label>
-                  {formErrors.lastName && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {formErrors.lastName}
+                      {formErrors.name}
                     </p>
                   )}
                 </div>
@@ -184,10 +180,24 @@ const SignUp = () => {
                   )}
                 </div>
 
+                {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+
                 {/* Sign Up Button */}
-                <button className="btn btn-primary w-full mt-4" type="submit">
-                  Create Account
-                  <LuArrowRight className="w-4 h-4" />
+                <button
+                  className={`btn w-full mt-4 flex items-center justify-center ${
+                    loading ? "bg-gray-400 cursor-not-allowed" : "btn-primary"
+                  }`}
+                  type="submit"
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <AiOutlineLoading3Quarters className="animate-spin w-5 h-5" />
+                  ) : (
+                    <>
+                      Create Account
+                      <LuArrowRight className="w-4 h-4 ml-2" />
+                    </>
+                  )}
                 </button>
 
                 {/* Divider */}
