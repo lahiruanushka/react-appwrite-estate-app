@@ -13,62 +13,60 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
-    <>
-      <Router>
-        <Header />
+    <Router>
+      <Header />
 
-        {/* Toast Notifications */}
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="dark"
+      {/* Toast Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+      />
+
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<Home />} />
+        <Route path="/offers" element={<Offers />} />
+
+        {/* Private Routes */}
+        <Route path="/profile" element={<PrivateRoute />}>
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        {/* Protected Routes (for guests only) */}
+        <Route
+          path="/sign-in"
+          element={
+            <ProtectedRoute>
+              <SignIn />
+            </ProtectedRoute>
+          }
         />
-
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/" element={<Home />} />
-          <Route path="/offers" element={<Offers />} />
-
-          {/* Private Routes */}
-          <Route path="/profile" element={<PrivateRoute />}>
-            <Route path="/profile" element={<Profile />} />
-          </Route>
-
-          {/* Auth Routes - Protected for logged-in users */}
-          <Route
-            path="/sign-in"
-            element={
-              <ProtectedRoute>
-                <SignIn />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/sign-up"
-            element={
-              <ProtectedRoute>
-                <SignUp />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/forgot-password"
-            element={
-              <ProtectedRoute>
-                <ForgotPassword />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </Router>
-    </>
+        <Route
+          path="/sign-up"
+          element={
+            <ProtectedRoute>
+              <SignUp />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/forgot-password"
+          element={
+            <ProtectedRoute>
+              <ForgotPassword />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </Router>
   );
 }
 

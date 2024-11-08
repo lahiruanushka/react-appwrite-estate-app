@@ -10,10 +10,10 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
 import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Businessman buying a house with hand giving keys and house_.jfif";
-import { account } from "../appwrite/appwrite";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import { handleSignup } from "../appwrite/auth";
-import { toast } from "react-toastify";
+import { useDispatch } from "react-redux";
+import { loginUser, logoutUser } from "../redux/slices/userSlice";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -27,6 +27,8 @@ const SignUp = () => {
   const [loading, setLoading] = useState(false);
 
   const { name, email, password } = formData;
+
+  const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const onChange = (e) => {
@@ -64,20 +66,12 @@ const SignUp = () => {
       try {
         setLoading(true);
         await handleSignup(formData.name, formData.email, formData.password); // Call signup function
-        navigate("/sign-in"); // Redirect to sign-in page after successful signup
-        toast(
-          "Your account has been created. Sign in to continue with your email and password.",
-          {
-            position: "top-right",
-            autoClose: 5000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "dark",
-          }
-        );
+
+        // Dispatch login action and wait for result
+        await dispatch(loginUser({ email, password })).unwrap();
+
+        // If successful, navigate to home
+        navigate("/");
       } catch (error) {
         console.error("Error during signup:", error);
         setError("Failed to create your account. Please try again later");

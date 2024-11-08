@@ -1,4 +1,4 @@
-import { account, ID } from './appwrite';
+import { account, ID } from './config';
 
 // Method to sign up a new user
 export const handleSignup = async (username, email, password) => {

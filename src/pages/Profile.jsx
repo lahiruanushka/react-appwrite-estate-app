@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getCurrentUser, handleLogout } from "../appwrite/auth";
+import { getCurrentUser } from "../appwrite/auth";
 import { useNavigate } from "react-router";
 import Loading from "../components/Loading";
+import { logoutUser } from "../redux/slices/userSlice";
+import { useDispatch } from "react-redux";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -22,6 +26,11 @@ const Profile = () => {
 
     fetchUserData();
   }, []);
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+    navigate("/sign-in");
+  };
 
   if (loading) {
     <Loading />;
@@ -72,10 +81,7 @@ const Profile = () => {
                 </button>
               </div>
               <button
-                onClick={async () => {
-                  await handleLogout();
-                  navigate("/sign-in");
-                }}
+                onClick={() => handleLogout()}
                 className="btn btn-primary btn-sm"
               >
                 Sign out
