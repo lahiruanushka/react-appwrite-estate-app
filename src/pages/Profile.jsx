@@ -5,6 +5,8 @@ import { logoutUser } from "../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
 import { getCurrentUser, updateCurrentUser } from "../appwrite/user";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+import { LuHome } from "react-icons/lu";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
@@ -48,7 +50,6 @@ const Profile = () => {
       await updateCurrentUser(formData.name); // Call Appwrite API to update name
       setUser((prev) => ({ ...prev, name: formData.name })); // Update local user state
       toast.success("Name updated successfully!");
-    
     } catch (error) {
       console.error("Failed to update name:", error);
       toast.error("Error updating name. Please try again."); // Show error toast
@@ -117,6 +118,16 @@ const Profile = () => {
             </div>
           </div>
         </div>
+        {/* Create Listing Button */}
+        <button type="button" className="btn btn-primary w-full">
+          <Link
+            to="/create-listing"
+            className="flex items-center justify-center w-full gap-2"
+          >
+            <LuHome className="w-6 h-6 bg-primary-content rounded-full p-1 border-2" />
+            <span>Sell or rent your home</span>
+          </Link>
+        </button>
       </div>
     </div>
   );
