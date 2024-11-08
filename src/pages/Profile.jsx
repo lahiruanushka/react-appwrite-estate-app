@@ -1,13 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { getCurrentUser } from "../appwrite/auth";
 import { useNavigate } from "react-router";
 import Loading from "../components/Loading";
 import { logoutUser } from "../redux/slices/userSlice";
 import { useDispatch } from "react-redux";
+import { getCurrentUser, updateCurrentUser } from "../appwrite/user";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [changeName, setChangeName] = useState(false);
+  const [formData, setFormData] = useState({ name: "" });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -17,6 +20,7 @@ const Profile = () => {
       try {
         const currentUser = await getCurrentUser();
         setUser(currentUser);
+        setFormData({ name: currentUser.name }); // Initialize form data with current name
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       } finally {
@@ -32,8 +36,27 @@ const Profile = () => {
     navigate("/sign-in");
   };
 
+  function onChange(e) {
+    setFormData((prevState) => ({
+      ...prevState,
+      [e.target.id]: e.target.value,
+    }));
+  }
+
+  const handleChangeName = async () => {
+    try {
+      await updateCurrentUser(formData.name); // Call Appwrite API to update name
+      setUser((prev) => ({ ...prev, name: formData.name })); // Update local user state
+      toast.success("Name updated successfully!");
+    
+    } catch (error) {
+      console.error("Failed to update name:", error);
+      toast.error("Error updating name. Please try again."); // Show error toast
+    }
+  };
+
   if (loading) {
-    <Loading />;
+    return <Loading />;
   }
 
   if (!user) {
@@ -55,8 +78,10 @@ const Profile = () => {
               </label>
               <input
                 type="text"
-                value={user.name}
-                disabled
+                id="name"
+                value={formData.name}
+                disabled={!changeName}
+                onChange={onChange}
                 className="input input-bordered w-full"
               />
             </div>
@@ -76,14 +101,17 @@ const Profile = () => {
             <div className="flex justify-between items-center mt-6">
               <div className="flex items-center gap-2">
                 <span>Want to change your name?</span>
-                <button className="btn btn-ghost btn-sm text-success">
-                  Edit
+                <button
+                  className="btn btn-ghost btn-sm text-success"
+                  onClick={() => {
+                    setChangeName((prevState) => !prevState);
+                    if (changeName) handleChangeName(); // Update name if changing back to disabled
+                  }}
+                >
+                  {changeName ? "Apply change" : "Edit"}
                 </button>
               </div>
-              <button
-                onClick={() => handleLogout()}
-                className="btn btn-primary btn-sm"
-              >
+              <button onClick={handleLogout} className="btn btn-primary btn-sm">
                 Sign out
               </button>
             </div>

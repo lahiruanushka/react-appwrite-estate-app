@@ -33,15 +33,3 @@ export const handleLogout = async () => {
         console.error('Logout error:', error);
     }
 };
-
-// Method to get the current logged-in user
-export const getCurrentUser = async () => {
-    try {
-        const user = await account.get();
-        console.log('Current user:', user);
-        return user; // Return user data
-    } catch (error) {
-        console.error('Error fetching current user:', error);
-        throw error; // Throw error to handle it in the component
-    }
-};

@@ -2,8 +2,8 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import {
   handleLogin,
   handleLogout as appwriteLogout,
-  getCurrentUser,
 } from "../../appwrite/auth";
+import { getCurrentUser } from "../../appwrite/user";
 
 // Async thunk for login
 export const loginUser = createAsyncThunk(
