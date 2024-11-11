@@ -95,5 +95,5 @@ class LitingsService {
   }
 }
 
-const postService = new LitingsService();
-export default postService;
+const listingService = new LitingsService();
+export default listingService;

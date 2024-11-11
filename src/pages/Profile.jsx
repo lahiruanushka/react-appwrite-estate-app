@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import { LuHome } from "react-icons/lu";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, updateUserProfile } from "../store/features/authSlice";
-import AlertMessage from "../components/AlertMessage";
 
 const Profile = () => {
   const [loading, setLoading] = useState(false);

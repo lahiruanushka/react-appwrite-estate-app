@@ -2,7 +2,7 @@ import client from "../conf/appwriteClient";
 import conf from "../conf/conf";
 import { Storage, ID } from "appwrite";
 
-export class StorageService {
+export class ListingImageService {
   constructor() {
     this.bucket = new Storage(client);
   }
@@ -67,5 +67,5 @@ export class StorageService {
   }
 }
 
-const storageService = new StorageService();
-export default storageService;
+const listingImageService = new ListingImageService();
+export default listingImageService;

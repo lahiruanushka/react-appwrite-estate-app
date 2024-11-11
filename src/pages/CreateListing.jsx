@@ -1,5 +1,9 @@
 import React from "react";
 import { useState } from "react";
+import listingService from "../services/listingService";
+import listingImageService from "../services/listingImageService";
+import { useNavigate } from "react-router";
+import { useSelector } from "react-redux";
 
 export default function CreateListing() {
   const [formData, setFormData] = useState({
@@ -32,6 +36,9 @@ export default function CreateListing() {
     regularPrice,
     discountedPrice,
   } = formData;
+
+  const navigate = useNavigate();
+  const { user } = useSelector((state) => state.auth);
 
   function onChange(e) {
     // Handle file inputs
@@ -118,15 +125,28 @@ export default function CreateListing() {
   }, []);
 
   const handleImageUpload = async () => {
+    if (!formData.images) return null;
 
+    const uploadedImageIds = [];
+    for (let i = 0; i < formData.images.length; i++) {
+      const file = formData.images[i];
+      try {
+        const response = await listingImageService.uploadFile(file);
+        console.log(response);
+        uploadedImageIds.push(response.$id);
+      } catch (error) {
+        console.error("Image upload failed:", error);
+        return null; // Exit on failure
+      }
+    }
+    return uploadedImageIds;
   };
 
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    // Validate prices if there's an offer
+    // Validate pricing if there's an offer
     const priceValidation = offer ? discountedPrice < regularPrice : true;
-
     if (!priceValidation) {
       console.error("Discounted price must be less than regular price");
       return;
@@ -134,7 +154,6 @@ export default function CreateListing() {
 
     // Upload images and get their IDs
     const uploadedImageIds = await handleImageUpload();
-
     if (!uploadedImageIds) return; // Exit if upload failed
 
     // Prepare data for saving to database
@@ -150,11 +169,14 @@ export default function CreateListing() {
       offer,
       regularPrice,
       discountedPrice,
-      images: uploadedImageIds, // Use uploaded image IDs here
+      images: uploadedImageIds, // Image IDs from Appwrite
+      userId: user.$id, // ID of the current login user
     };
 
     try {
-      console.log(listingData);
+      const response = await listingService.createLitings(listingData);
+      console.log("Listing saved successfully:", response);
+      navigate("/profile");
     } catch (error) {
       console.error("Error saving listing:", error);
     }
