@@ -12,6 +12,7 @@ import CreateListing from "./pages/CreateListing";
 import { useEffect } from "react";
 import { checkAuth } from "./store/features/authSlice";
 import { useDispatch } from "react-redux";
+import Footer from "./components/Footer";
 
 function App() {
   const dispatch = useDispatch();
@@ -41,6 +42,7 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
       </Routes>
+      <Footer />
     </Router>
   );
 }
