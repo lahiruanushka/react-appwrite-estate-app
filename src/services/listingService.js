@@ -74,7 +74,7 @@ class LitingsService {
     }
   }
 
-  async getUserLitingss(userId) {
+  async getUserLitings(userId) {
     if (!userId) {
       throw new Error("User ID must be provided");
     }

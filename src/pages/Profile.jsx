@@ -5,11 +5,14 @@ import { Link } from "react-router-dom";
 import { LuHome } from "react-icons/lu";
 import { useSelector, useDispatch } from "react-redux";
 import { logout, updateUserProfile } from "../store/features/authSlice";
+import listingService from "../services/listingService";
+import ListingItem from "../components/ListingItem";
 
 const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [changeName, setChangeName] = useState(false);
   const [formData, setFormData] = useState({ name: "" });
+  const [listings, setListings] = useState([]);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -62,6 +65,22 @@ const Profile = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchUserListings = async () => {
+      try {
+        setLoading(true);
+        const response = await listingService.getUserLitings(user.$id);
+        setListings(response);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserListings();
+  }, []);
 
   if (loading || authLoading) {
     return <Loading />;
@@ -150,7 +169,26 @@ const Profile = () => {
           <LuHome className="w-6 h-6 bg-primary-content rounded-full p-1 border-2" />
           <span>Sell or rent your home</span>
         </Link>
+
       </div>
+
+      
+      <div className="max-w-6xl p-6 mx-auto mt-6 bg-base-100 rounded-lg shadow-lg">
+            <>
+              <h2 className="text-3xl font-bold text-center text-primary mb-4">
+                My Listings
+              </h2>
+              <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {listings.map((listing, index) => (
+                  <ListingItem
+                    key={index}
+                    listing={listing}
+                    className="p-4 border border-base-200 rounded-lg hover:bg-base-200 transition-colors"
+                  />
+                ))}
+              </ul>
+            </>
+        </div>
     </div>
   );
 };
