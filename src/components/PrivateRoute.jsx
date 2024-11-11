@@ -14,9 +14,7 @@ export default function PrivateRoute() {
   }, [dispatch]);
 
   // Show loading state while checking authentication
-  {
-    loading && <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" replace />;
 }

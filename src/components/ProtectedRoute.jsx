@@ -13,9 +13,7 @@ const ProtectedRoute = () => {
   }, [dispatch]);
 
   // Show loading state while checking authentication
-  {
-    loading && <Loading />;
-  }
+  if (loading) return <Loading />;
 
   return !isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };
