@@ -173,12 +173,12 @@ const Profile = () => {
       </div>
 
       
-      <div className="max-w-6xl p-6 mx-auto mt-6 bg-base-100 rounded-lg shadow-lg">
+      <div className="max-w-7xl p-6 mx-auto mt-6 bg-base-100 rounded-lg shadow-lg">
             <>
               <h2 className="text-3xl font-bold text-center text-primary mb-4">
                 My Listings
               </h2>
-              <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
                 {listings.map((listing, index) => (
                   <ListingItem
                     key={index}
