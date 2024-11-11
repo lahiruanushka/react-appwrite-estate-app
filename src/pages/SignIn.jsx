@@ -2,21 +2,20 @@ import { useState } from "react";
 import { LuArrowRight, LuEye, LuEyeOff, LuLock, LuMail } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
-import Image from "../assets/images/House Finding On Real Estate Company Stock Vector.jfif";
-import { useDispatch, useSelector } from "react-redux";
-import { loginUser } from "../redux/slices/userSlice";
+import Image from "../assets/images/HouseVector.jfif";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import { useDispatch, useSelector } from "react-redux";
+import { login } from "../store/features/authSlice";
 
 const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [formErrors, setFormErrors] = useState({});
 
-  const { loading, error } = useSelector((state) => state.user);
+  const { email, password } = formData;
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { email, password } = formData;
+  const { loading, error } = useSelector((state) => state.auth);
 
   // Handle input changes
   const onChange = (e) => {
@@ -54,14 +53,9 @@ const SignIn = () => {
     e.preventDefault();
 
     if (validateForm()) {
-      try {
-        // Dispatch login action and wait for result
-        await dispatch(loginUser({ email, password })).unwrap();
-
-        // If successful, navigate to home
+      const result = await dispatch(login(formData));
+      if (!result.error) {
         navigate("/");
-      } catch (error) {
-        console.error("Login failed:", error);
       }
     }
   };

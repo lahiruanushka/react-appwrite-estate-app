@@ -6,69 +6,40 @@ import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import Offers from "./pages/Offers";
 import Header from "./components/Header";
-import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import PrivateRoute from "./components/PrivateRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 import CreateListing from "./pages/CreateListing";
+import { useEffect } from "react";
+import { checkAuth } from "./store/features/authSlice";
+import { useDispatch } from "react-redux";
 
 function App() {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
   return (
     <Router>
       <Header />
-
-      {/* Toast Notifications */}
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
-
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/offers" element={<Offers />} />
 
         {/* Private Routes */}
-        <Route path="/profile" element={<PrivateRoute />}>
+        <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
-        </Route>
-        <Route path="/create-listing" element={<PrivateRoute />}>
           <Route path="/create-listing" element={<CreateListing />} />
         </Route>
 
-        {/* Protected Routes (for guests only) */}
-        <Route
-          path="/sign-in"
-          element={
-            <ProtectedRoute>
-              <SignIn />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/sign-up"
-          element={
-            <ProtectedRoute>
-              <SignUp />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/forgot-password"
-          element={
-            <ProtectedRoute>
-              <ForgotPassword />
-            </ProtectedRoute>
-          }
-        />
+        {/* Protected Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/sign-in" element={<SignIn />} />
+          <Route path="/sign-up" element={<SignUp />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+        </Route>
       </Routes>
     </Router>
   );

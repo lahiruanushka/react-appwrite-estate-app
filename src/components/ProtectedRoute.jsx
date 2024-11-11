@@ -1,15 +1,23 @@
-import { useSelector } from "react-redux";
-import { Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Navigate, Outlet } from "react-router-dom";
+import { checkAuth } from "../store/features/authSlice";
+import Loading from "./Loading";
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useSelector((state) => state.user);
+const ProtectedRoute = () => {
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
-  if (isAuthenticated) {
-    // If user is authenticated, redirect to the home
-    return <Navigate to="/profile" />;
+  useEffect(() => {
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  // Show loading state while checking authentication
+  {
+    loading && <Loading />;
   }
 
-  return children; // Allow access to the sign-in or sign-up page if not authenticated
+  return !isAuthenticated ? <Outlet /> : <Navigate to="/" replace />;
 };
 
 export default ProtectedRoute;

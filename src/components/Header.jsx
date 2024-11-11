@@ -1,15 +1,17 @@
 import { LuMenu, LuMoon, LuSun, LuHome, LuGift, LuUser } from "react-icons/lu";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { Link, useLocation } from "react-router-dom";
-import { logoutUser } from "../redux/slices/userSlice";
+import { logout } from "../store/features/authSlice";
 
 const Header = () => {
   const location = useLocation();
   const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
 
-  const handleLogout = () => {
-    dispatch(logoutUser());
+  const handleLogout = async () => {
+    await dispatch(logout());
+    navigate("/login");
   };
 
   const toggleTheme = () => {
@@ -103,8 +105,7 @@ const Header = () => {
               to="/profile"
               className="text-sm text-gray-600 dark:text-gray-300 font-medium cursor-pointer"
             >
-              Welcome,{" "}
-              <span className="text-primary font-semibold">{user?.name}</span>!
+              Welcome, <span className="text-primary font-semibold">{user.name}</span>!
             </Link>
 
             <button

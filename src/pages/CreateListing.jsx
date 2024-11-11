@@ -1,3 +1,4 @@
+import React from "react";
 import { useState } from "react";
 
 export default function CreateListing() {
@@ -16,6 +17,8 @@ export default function CreateListing() {
     images: null,
   });
 
+  const [imageUrls, setImageUrls] = useState([]);
+
   const {
     type,
     name,
@@ -33,14 +36,25 @@ export default function CreateListing() {
   function onChange(e) {
     // Handle file inputs
     if (e.target.files) {
+      const files = Array.from(e.target.files);
+
+      if (files.length > 6) {
+        alert("Maximum 6 images allowed");
+        return;
+      }
+
       setFormData((prevState) => ({
         ...prevState,
         images: e.target.files,
       }));
+
+      // Create preview URLs
+      const urls = files.map((file) => URL.createObjectURL(file));
+      setImageUrls(urls);
       return;
     }
 
-    // Handle checkboxes
+    // Rest of your existing onChange handlers...
     if (e.target.type === "checkbox") {
       setFormData((prevState) => ({
         ...prevState,
@@ -49,7 +63,6 @@ export default function CreateListing() {
       return;
     }
 
-    // Handle number inputs
     if (e.target.type === "number") {
       setFormData((prevState) => ({
         ...prevState,
@@ -58,7 +71,6 @@ export default function CreateListing() {
       return;
     }
 
-    // Handle buttons (for type selection)
     if (e.target.type === "button") {
       setFormData((prevState) => ({
         ...prevState,
@@ -67,35 +79,84 @@ export default function CreateListing() {
       return;
     }
 
-    // Handle all other inputs
     setFormData((prevState) => ({
       ...prevState,
       [e.target.id]: e.target.value,
     }));
   }
 
-  const onSubmit = (e) => {
+  // Function to remove an image
+  const removeImage = (indexToRemove) => {
+    // Create new FileList without the removed image
+    const dt = new DataTransfer();
+    const files = Array.from(formData.images);
+    files.forEach((file, index) => {
+      if (index !== indexToRemove) {
+        dt.items.add(file);
+      }
+    });
+
+    // Update form data with new FileList
+    setFormData((prev) => ({
+      ...prev,
+      images: dt.files,
+    }));
+
+    // Update preview URLs
+    setImageUrls((prev) => {
+      // Revoke the URL to avoid memory leaks
+      URL.revokeObjectURL(prev[indexToRemove]);
+      return prev.filter((_, index) => index !== indexToRemove);
+    });
+  };
+
+  // Clean up URLs when component unmounts
+  React.useEffect(() => {
+    return () => {
+      imageUrls.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
+
+  const handleImageUpload = async () => {
+
+  };
+
+  const onSubmit = async (e) => {
     e.preventDefault();
 
-    // Create a copy of formData for display
-    const displayData = { ...formData };
-
-    // Convert FileList to array of file names for display
-    if (displayData.images) {
-      displayData.images = Array.from(displayData.images).map(
-        (file) => file.name
-      );
-    }
-
-    // Log the formatted data
-    console.log("Form Submission Data:");
-    console.table(displayData);
-
-    // Additional validation could go here
+    // Validate prices if there's an offer
     const priceValidation = offer ? discountedPrice < regularPrice : true;
+
     if (!priceValidation) {
       console.error("Discounted price must be less than regular price");
       return;
+    }
+
+    // Upload images and get their IDs
+    const uploadedImageIds = await handleImageUpload();
+
+    if (!uploadedImageIds) return; // Exit if upload failed
+
+    // Prepare data for saving to database
+    const listingData = {
+      type,
+      name,
+      bedrooms,
+      bathrooms,
+      parking,
+      furnished,
+      address,
+      description,
+      offer,
+      regularPrice,
+      discountedPrice,
+      images: uploadedImageIds, // Use uploaded image IDs here
+    };
+
+    try {
+      console.log(listingData);
+    } catch (error) {
+      console.error("Error saving listing:", error);
     }
   };
 
@@ -283,50 +344,159 @@ export default function CreateListing() {
                   </label>
                 </div>
 
-                {/* Regular Price */}
-                <div className="form-control">
-                  <label className="label">
-                    <span className="label-text">Regular Price</span>
-                  </label>
-                  <label className="input-group">
-                    <input
-                      type="number"
-                      id="regularPrice"
-                      value={regularPrice}
-                      onChange={onChange}
-                      min="50"
-                      max="400000000"
-                      required
-                      className="input input-bordered w-full"
-                    />
-                    <span>{type === "rent" ? "$/month" : "$"}</span>
-                  </label>
-                </div>
+                {type === "rent" ? (
+                  // Rental Pricing
+                  <div className="space-y-4">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Monthly Rent</span>
+                      </label>
+                      <label className="input-group">
+                        <span className="bg-primary text-primary-content">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          id="regularPrice"
+                          value={regularPrice}
+                          onChange={onChange}
+                          min="50"
+                          max="400000000"
+                          required
+                          className="input input-bordered w-full"
+                          placeholder="0.00"
+                        />
+                        <span className="bg-primary text-primary-content">
+                          /month
+                        </span>
+                      </label>
+                      <label className="label">
+                        <span className="label-text-alt text-base-content/70">
+                          Minimum $50
+                        </span>
+                      </label>
+                    </div>
 
-                {/* Discounted Price */}
-                {offer && (
-                  <div className="form-control mt-4">
-                    <label className="label">
-                      <span className="label-text">Discounted Price</span>
-                    </label>
-                    <label className="input-group">
-                      <input
-                        type="number"
-                        id="discountedPrice"
-                        value={discountedPrice}
-                        onChange={onChange}
-                        min="50"
-                        max="400000000"
-                        required
-                        className="input input-bordered w-full"
+                    {offer && (
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">
+                            Discounted Monthly Rent
+                          </span>
+                        </label>
+                        <label className="input-group">
+                          <span className="bg-secondary text-secondary-content">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            id="discountedPrice"
+                            value={discountedPrice}
+                            onChange={onChange}
+                            min="50"
+                            max={regularPrice - 1}
+                            required
+                            className="input input-bordered w-full"
+                            placeholder="0.00"
+                          />
+                          <span className="bg-secondary text-secondary-content">
+                            /month
+                          </span>
+                        </label>
+                        <label className="label">
+                          <span className="label-text-alt text-base-content/70">
+                            Must be less than regular rent
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  // Sale Pricing
+                  <div className="space-y-4">
+                    <div className="form-control">
+                      <label className="label">
+                        <span className="label-text">Selling Price</span>
+                      </label>
+                      <label className="input-group">
+                        <span className="bg-primary text-primary-content">
+                          $
+                        </span>
+                        <input
+                          type="number"
+                          id="regularPrice"
+                          value={regularPrice}
+                          onChange={onChange}
+                          min="50"
+                          max="400000000"
+                          required
+                          className="input input-bordered w-full"
+                          placeholder="0.00"
+                        />
+                      </label>
+                      <label className="label">
+                        <span className="label-text-alt text-base-content/70">
+                          Minimum $50
+                        </span>
+                      </label>
+                    </div>
+
+                    {offer && (
+                      <div className="form-control">
+                        <label className="label">
+                          <span className="label-text">
+                            Discounted Selling Price
+                          </span>
+                        </label>
+                        <label className="input-group">
+                          <span className="bg-secondary text-secondary-content">
+                            $
+                          </span>
+                          <input
+                            type="number"
+                            id="discountedPrice"
+                            value={discountedPrice}
+                            onChange={onChange}
+                            min="50"
+                            max={regularPrice - 1}
+                            required
+                            className="input input-bordered w-full"
+                            placeholder="0.00"
+                          />
+                        </label>
+                        <label className="label">
+                          <span className="label-text-alt text-base-content/70">
+                            Must be less than regular price
+                          </span>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {offer && regularPrice <= discountedPrice && (
+                  <div className="alert alert-error mt-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth="2"
+                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
                       />
-                      <span>{type === "rent" ? "$/month" : "$"}</span>
-                    </label>
+                    </svg>
+                    <span>
+                      Discounted price must be less than regular price!
+                    </span>
                   </div>
                 )}
               </div>
 
-              {/* Images Upload */}
+              {/* Updated Images Upload Section */}
               <div className="form-control">
                 <label className="label">
                   <span className="label-text text-lg font-semibold">
@@ -347,6 +517,33 @@ export default function CreateListing() {
                     className="file-input file-input-bordered w-full"
                   />
                 </div>
+
+                {/* Image Preview */}
+                {imageUrls.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4">
+                    {imageUrls.map((url, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={url}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-48 object-cover rounded-lg"
+                        />
+                        {index === 0 && (
+                          <div className="absolute top-2 left-2 badge badge-primary">
+                            Cover Image
+                          </div>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="btn btn-circle btn-sm btn-error absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Submit Button */}

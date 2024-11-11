@@ -9,11 +9,10 @@ import {
 } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import OAuth from "../components/OAuth";
-import Image from "../assets/images/Premium Vector _ Real Estate Concept_ Businessman buying a house with hand giving keys and house_.jfif";
+import Image from "../assets/images/RealEstateHouse.jfif";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
-import { handleSignup } from "../appwrite/auth";
-import { useDispatch } from "react-redux";
-import { loginUser, logoutUser } from "../redux/slices/userSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { createAccount } from "../store/features/authSlice";
 
 const SignUp = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -23,13 +22,12 @@ const SignUp = () => {
     password: "",
   });
   const [formErrors, setFormErrors] = useState({});
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
   const { name, email, password } = formData;
 
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => state.auth);
 
   const onChange = (e) => {
     setFormData((prevState) => ({
@@ -43,7 +41,6 @@ const SignUp = () => {
         [e.target.id]: null,
       }));
     }
-    setError(null);
   };
 
   const validateForm = () => {
@@ -62,21 +59,11 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (validateForm()) {
-      try {
-        setLoading(true);
-        await handleSignup(formData.name, formData.email, formData.password); // Call signup function
-
-        // Dispatch login action and wait for result
-        await dispatch(loginUser({ email, password })).unwrap();
-
-        // If successful, navigate to home
+      const result = await dispatch(createAccount(formData));
+      if (!result.error) {
         navigate("/");
-      } catch (error) {
-        console.error("Error during signup:", error);
-        setError("Failed to create your account. Please try again later");
-      } finally {
-        setLoading(false);
       }
     }
   };

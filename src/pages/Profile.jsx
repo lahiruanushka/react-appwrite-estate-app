@@ -1,42 +1,35 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import Loading from "../components/Loading";
-import { logoutUser } from "../redux/slices/userSlice";
-import { useDispatch } from "react-redux";
-import { getCurrentUser, updateCurrentUser } from "../appwrite/user";
-import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { LuHome } from "react-icons/lu";
+import { useSelector, useDispatch } from "react-redux";
+import { logout, updateUserProfile } from "../store/features/authSlice";
+import AlertMessage from "../components/AlertMessage";
 
 const Profile = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [changeName, setChangeName] = useState(false);
   const [formData, setFormData] = useState({ name: "" });
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { user, loading: authLoading } = useSelector((state) => state.auth);
+
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+      navigate("/sign-in");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        setUser(currentUser);
-        setFormData({ name: currentUser.name }); // Initialize form data with current name
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserData();
-  }, []);
-
-  const handleLogout = () => {
-    dispatch(logoutUser());
-    navigate("/sign-in");
-  };
+    if (user) {
+      setFormData({ name: user.name });
+    }
+  }, [user]);
 
   function onChange(e) {
     setFormData((prevState) => ({
@@ -46,17 +39,32 @@ const Profile = () => {
   }
 
   const handleChangeName = async () => {
+    if (!changeName) return; // If enabling edit mode, don't proceed
+
+    if (formData.name === user.name) {
+      setChangeName(false);
+      return; // No changes made
+    }
+
+    if (formData.name.trim().length < 3) {
+      console.error("Name must be at least 3 characters long");
+      return;
+    }
+
+    setLoading(true);
     try {
-      await updateCurrentUser(formData.name); // Call Appwrite API to update name
-      setUser((prev) => ({ ...prev, name: formData.name })); // Update local user state
-      toast.success("Name updated successfully!");
+      await dispatch(updateUserProfile({ name: formData.name })).unwrap();
+      setChangeName(false);
     } catch (error) {
-      console.error("Failed to update name:", error);
-      toast.error("Error updating name. Please try again."); // Show error toast
+      console.error(error.message || "Failed to update name");
+      // Revert name change on error
+      setFormData({ name: user.name });
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return <Loading />;
   }
 
@@ -84,6 +92,9 @@ const Profile = () => {
                 disabled={!changeName}
                 onChange={onChange}
                 className="input input-bordered w-full"
+                placeholder="Your name"
+                minLength={3}
+                required
               />
             </div>
 
@@ -103,31 +114,43 @@ const Profile = () => {
               <div className="flex items-center gap-2">
                 <span>Want to change your name?</span>
                 <button
-                  className="btn btn-ghost btn-sm text-success"
+                  className={`btn btn-ghost btn-sm ${
+                    changeName ? "text-success" : "text-primary"
+                  }`}
                   onClick={() => {
-                    setChangeName((prevState) => !prevState);
-                    if (changeName) handleChangeName(); // Update name if changing back to disabled
+                    if (changeName) {
+                      handleChangeName();
+                    } else {
+                      setChangeName(true);
+                    }
                   }}
+                  disabled={loading}
                 >
-                  {changeName ? "Apply change" : "Edit"}
+                  {loading
+                    ? "Updating..."
+                    : changeName
+                    ? "Apply change"
+                    : "Edit"}
                 </button>
               </div>
-              <button onClick={handleLogout} className="btn btn-primary btn-sm">
+              <button
+                onClick={handleLogout}
+                className="btn btn-primary btn-sm"
+                disabled={loading}
+              >
                 Sign out
               </button>
             </div>
           </div>
         </div>
-        {/* Create Listing Button */}
-        <button type="button" className="btn btn-primary w-full">
-          <Link
-            to="/create-listing"
-            className="flex items-center justify-center w-full gap-2"
-          >
-            <LuHome className="w-6 h-6 bg-primary-content rounded-full p-1 border-2" />
-            <span>Sell or rent your home</span>
-          </Link>
-        </button>
+
+        <Link
+          to="/create-listing"
+          className="btn btn-primary w-full mt-4 flex items-center justify-center gap-2"
+        >
+          <LuHome className="w-6 h-6 bg-primary-content rounded-full p-1 border-2" />
+          <span>Sell or rent your home</span>
+        </Link>
       </div>
     </div>
   );

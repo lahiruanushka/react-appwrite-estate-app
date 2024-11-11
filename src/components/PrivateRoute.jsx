@@ -1,8 +1,22 @@
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
 import { Outlet, Navigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { checkAuth } from "../store/features/authSlice";
+import Loading from "./Loading";
 
 export default function PrivateRoute() {
-  const { isAuthenticated } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const { isAuthenticated, loading } = useSelector((state) => state.auth);
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" />; // Redirect if not logged in
+  useEffect(() => {
+    // Check authentication status when component mounts
+    dispatch(checkAuth());
+  }, [dispatch]);
+
+  // Show loading state while checking authentication
+  {
+    loading && <Loading />;
+  }
+
+  return isAuthenticated ? <Outlet /> : <Navigate to="/sign-in" replace />;
 }
