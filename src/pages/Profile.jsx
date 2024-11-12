@@ -8,6 +8,7 @@ import { logout, updateUserProfile } from "../store/features/authSlice";
 import listingService from "../services/listingService";
 import ListingItem from "../components/ListingItem";
 import AlertMessage from "../components/AlertMessage";
+import EmptyListings from "../components/EmptyListings";
 
 const Profile = () => {
   const [loading, setLoading] = useState(false);
@@ -125,7 +126,7 @@ const Profile = () => {
               type={alert.type}
               message={alert.message}
               onClose={() => setAlert({ visible: false })}
-              duration={3000} 
+              duration={3000}
             />
           )}
 
@@ -207,10 +208,13 @@ const Profile = () => {
       </div>
 
       <div className="max-w-7xl p-6 mx-auto mt-6 bg-base-100 rounded-lg shadow-lg">
-        <>
-          <h2 className="text-3xl font-bold text-center text-primary mb-4">
-            My Listings
-          </h2>
+        <h2 className="text-3xl font-bold text-center text-primary mb-4">
+          My Listings
+        </h2>
+
+        {listings.length === 0 ? (
+          <EmptyListings />
+        ) : (
           <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {listings.map((listing, index) => (
               <ListingItem
@@ -223,7 +227,7 @@ const Profile = () => {
               />
             ))}
           </ul>
-        </>
+        )}
       </div>
     </div>
   );

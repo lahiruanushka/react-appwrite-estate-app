@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import Footer from "./components/Footer";
 import EditListing from "./pages/EditListing";
 import Listing from "./pages/Listing";
+import ScrollToTop from "./components/ScrollToTop";
 
 function App() {
   const dispatch = useDispatch();
@@ -49,6 +50,8 @@ function App() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
         </Route>
       </Routes>
+
+      <ScrollToTop />
       <Footer />
     </Router>
   );

@@ -12,6 +12,7 @@ import {
   LuCar,
   LuHome,
   LuMapPin,
+  LuMessageSquare,
   LuPhone,
   LuShare,
   LuSofa,
@@ -20,6 +21,9 @@ import {
 import listingImageService from "../services/listingImageService";
 import listingService from "../services/listingService";
 import Loading from "../components/Loading";
+import Contact from "../components/ContactModal";
+import { useSelector } from "react-redux";
+import ContactModal from "../components/ContactModal";
 
 export default function Listing() {
   const params = useParams();
@@ -29,6 +33,9 @@ export default function Listing() {
   const [shareLinkCopied, setShareLinkCopied] = useState(false);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
     async function fetchListing() {
@@ -315,13 +322,30 @@ export default function Listing() {
                     <h3 className="card-title">Contact Information</h3>
                     <div className="flex items-center gap-2">
                       <LuPhone size={20} />
-                      <a href="tel:+1234567890" className="link link-primary">
-                        Contact Agent
+                      <a
+                        href="tel:+1234567890"
+                        className="link link-primary no-underline"
+                      >
+                        Call Us
                       </a>
+                      <LuMessageSquare size={20} />
+                      <button
+                        className="link link-primary no-underline"
+                        onClick={() => setIsModalOpen(true)}
+                      >
+                        Email Us
+                      </button>
                     </div>
                   </div>
                 </div>
               )}
+
+              <ContactModal
+                userId={listing.userId}
+                listing={listing}
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+              />
             </div>
           </div>
         </div>
