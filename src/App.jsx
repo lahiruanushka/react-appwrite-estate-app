@@ -14,6 +14,7 @@ import { checkAuth } from "./store/features/authSlice";
 import { useDispatch } from "react-redux";
 import Footer from "./components/Footer";
 import EditListing from "./pages/EditListing";
+import Listing from "./pages/Listing";
 
 function App() {
   const dispatch = useDispatch();
@@ -22,7 +23,6 @@ function App() {
     dispatch(checkAuth());
   }, [dispatch]);
 
-
   return (
     <Router>
       <Header />
@@ -30,6 +30,10 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/offers" element={<Offers />} />
+        <Route
+          path="/category/:categoryName/:listingId"
+          element={<Listing />}
+        />
 
         {/* Private Routes */}
         <Route element={<PrivateRoute />}>
