@@ -59,7 +59,7 @@ export class ListingImageService {
         "jpg" // output jpg format
       );
 
-      return result.href; // Return the URL for the image preview
+      return result; // Return the URL for the image preview
     } catch (error) {
       console.error("Error fetching file preview:", error);
       throw new Error("Failed to fetch file preview."); // Rethrow with context

@@ -32,13 +32,9 @@ export default function ListingItem({ listing, id, onEdit, onDelete }) {
   };
 
   useEffect(() => {
-    console.log('listing', listing)
-    
     const fetchPreviewUrl = async () => {
       try {
-        const url = await listingImageService.getFilePreview(
-          "6731e87500000aa57608"
-        );
+        const url = await listingImageService.getFilePreview(listing.images[0]);
         setPreviewUrl(url);
       } catch (error) {
         console.error("Error fetching image preview:", error);
@@ -53,8 +49,6 @@ export default function ListingItem({ listing, id, onEdit, onDelete }) {
     }
     setIsModalOpen(false);
   };
-
-  
 
   return (
     <div
@@ -144,7 +138,7 @@ export default function ListingItem({ listing, id, onEdit, onDelete }) {
                   className="btn btn-sm btn-error btn-circle cursor-pointer"
                   onClick={() => {
                     setDeleteId(listing.$id); // Set the ID to be deleted
-                    setIsModalOpen(true);    // Open the delete confirmation modal
+                    setIsModalOpen(true); // Open the delete confirmation modal
                   }}
                   aria-label="Delete"
                 >

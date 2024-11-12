@@ -36,9 +36,9 @@ export default function Listing() {
         const response = await listingService.getListing(params.listingId);
         if (response) {
           setListing(response);
-          if (response.imgUrls?.length > 0) {
+          if (response.images?.length > 0) {
             const validUrls = await Promise.all(
-              response.imgUrls.map(async (fileId) => {
+              response.images.map(async (fileId) => {
                 try {
                   return await listingImageService.getFilePreview(fileId);
                 } catch (error) {
