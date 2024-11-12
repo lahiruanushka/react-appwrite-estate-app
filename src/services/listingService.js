@@ -21,7 +21,7 @@ class LitingsService {
     }
   }
 
-  async getLiting(documentId) {
+  async getListing(documentId) {
     try {
       return await this.databases.getDocument(
         conf.appwriteDatabaseId,
@@ -34,7 +34,7 @@ class LitingsService {
     }
   }
 
-  async updateLitings(documentId, data) {
+  async updateListing(documentId, data) {
     try {
       return await this.databases.updateDocument(
         conf.appwriteDatabaseId,

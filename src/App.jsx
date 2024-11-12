@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { checkAuth } from "./store/features/authSlice";
 import { useDispatch } from "react-redux";
 import Footer from "./components/Footer";
+import EditListing from "./pages/EditListing";
 
 function App() {
   const dispatch = useDispatch();
@@ -34,6 +35,7 @@ function App() {
         <Route element={<PrivateRoute />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/create-listing" element={<CreateListing />} />
+          <Route path="/edit-listing/:listingId" element={<EditListing />} />
         </Route>
 
         {/* Protected Routes */}
