@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { logout, updateUserProfile } from "../store/features/authSlice";
 import listingService from "../services/listingService";
 import ListingItem from "../components/ListingItem";
+import AlertMessage from "../components/AlertMessage";
 
 const Profile = () => {
   const [loading, setLoading] = useState(false);
@@ -82,6 +83,30 @@ const Profile = () => {
     fetchUserListings();
   }, []);
 
+  async function onDelete(listingId) {
+    try {
+      const response = await listingService.deleteLiting(listingId);
+      console.log(response);
+      showAlert("success", "Listing deleted successfully!");
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  const [alert, setAlert] = useState({
+    visible: false,
+    type: "info",
+    message: "",
+  });
+
+  const showAlert = (type, message) => {
+    setAlert({ visible: true, type, message });
+  };
+
+  function onEdit(listingID) {
+    navigate(`/edit-listing/${listingID}`);
+  }
+
   if (loading || authLoading) {
     return <Loading />;
   }
@@ -94,6 +119,16 @@ const Profile = () => {
     <div className="min-h-screen bg-base-200 py-8">
       <div className="max-w-2xl mx-auto">
         <div className="card bg-base-100 shadow-xl">
+          {/* Alert Message */}
+          {alert.visible && (
+            <AlertMessage
+              type={alert.type}
+              message={alert.message}
+              onClose={() => setAlert({ visible: false })}
+              duration={3000} 
+            />
+          )}
+
           <div className="card-body">
             <h2 className="card-title text-3xl justify-center mb-6">
               My Profile
@@ -169,26 +204,27 @@ const Profile = () => {
           <LuHome className="w-6 h-6 bg-primary-content rounded-full p-1 border-2" />
           <span>Sell or rent your home</span>
         </Link>
-
       </div>
 
-      
       <div className="max-w-7xl p-6 mx-auto mt-6 bg-base-100 rounded-lg shadow-lg">
-            <>
-              <h2 className="text-3xl font-bold text-center text-primary mb-4">
-                My Listings
-              </h2>
-              <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
-                {listings.map((listing, index) => (
-                  <ListingItem
-                    key={index}
-                    listing={listing}
-                    className="p-4 border border-base-200 rounded-lg hover:bg-base-200 transition-colors"
-                  />
-                ))}
-              </ul>
-            </>
-        </div>
+        <>
+          <h2 className="text-3xl font-bold text-center text-primary mb-4">
+            My Listings
+          </h2>
+          <ul className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+            {listings.map((listing, index) => (
+              <ListingItem
+                key={index}
+                listing={listing}
+                id={listing.$id}
+                onDelete={() => onDelete(listing.$id)}
+                onEdit={() => onEdit(listing.$id)}
+                className="p-4 border border-base-200 rounded-lg hover:bg-base-200 transition-colors"
+              />
+            ))}
+          </ul>
+        </>
+      </div>
     </div>
   );
 };

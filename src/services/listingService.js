@@ -48,7 +48,7 @@ class LitingsService {
     }
   }
 
-  async deleteLitings(documentId) {
+  async deleteLiting(documentId) {
     try {
       return await this.databases.deleteDocument(
         conf.appwriteDatabaseId,
@@ -61,7 +61,7 @@ class LitingsService {
     }
   }
 
-  async getLitingss(queries = []) {
+  async getLitings(queries = []) {
     try {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
@@ -69,7 +69,7 @@ class LitingsService {
         queries
       );
     } catch (error) {
-      console.error("LitingsService :: getLitingss() :: ", error);
+      console.error("LitingsService :: getLitings() :: ", error);
       throw error;
     }
   }
@@ -89,7 +89,7 @@ class LitingsService {
       );
       return response.documents; // Return the array of documents
     } catch (error) {
-      console.error("LitingsService :: getUserLitingss() :: ", error);
+      console.error("LitingsService :: getUserLitings() :: ", error);
       throw error;
     }
   }
