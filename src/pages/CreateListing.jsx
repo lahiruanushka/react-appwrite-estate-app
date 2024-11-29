@@ -19,7 +19,7 @@ export default function CreateListing() {
     regularPrice: 0,
     discountedPrice: 0,
     images: null,
-    geolocation: null, // Add geolocation to initial state
+    geolocation: [0, 0], // Initialize as an array with default coordinates
   });
 
   const [imageUrls, setImageUrls] = useState([]);
@@ -183,13 +183,15 @@ export default function CreateListing() {
     const uploadedImageIds = await handleImageUpload();
     if (!uploadedImageIds) return; // Exit if upload failed
   
-    // Get geolocation for the address
-    const geocodedLocation = await getGeolocation(address);
-  
-    // Convert geolocation to a string or a specific format
-    const geolocationString = geocodedLocation 
-      ? `${geocodedLocation.lat},${geocodedLocation.lng}`
-      : '0,0';
+
+ // Get geolocation for the address
+ const geocodedLocation = await getGeolocation(address);
+
+ // Store geolocation as an array
+ const geolocationArray = geocodedLocation 
+   ? [geocodedLocation.lat, geocodedLocation.lng]
+   : [0, 0];
+
   
     // Prepare data for saving to database
     const listingData = {
@@ -206,7 +208,7 @@ export default function CreateListing() {
       discountedPrice,
       images: uploadedImageIds,
       userId: user.$id,
-      geolocation: geolocationString, // Convert to string
+      geolocation: geolocationArray,
     };
   
     try {

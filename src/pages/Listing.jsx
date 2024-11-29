@@ -341,10 +341,10 @@ export default function Listing() {
               {listing.geolocation && (
                 <div className="w-full h-[200px] md:h-[400px] z-10 overflow-hidden mt-8 md:mt-3 md:ml-2">
                   {(() => {
-                    // Parse the geolocation string
-                    const [lat, lng] = listing.geolocation
-                      .split(",")
-                      .map(parseFloat);
+                    // Parse the geolocation array
+                    const [lat, lng] = Array.isArray(listing.geolocation)
+                      ? listing.geolocation
+                      : listing.geolocation.split(",").map(parseFloat);
 
                     // Check if coordinates are valid
                     if (lat && lng) {
