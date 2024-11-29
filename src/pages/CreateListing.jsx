@@ -19,6 +19,7 @@ export default function CreateListing() {
     regularPrice: 0,
     discountedPrice: 0,
     images: null,
+    geolocation: null, // Add geolocation to initial state
   });
 
   const [imageUrls, setImageUrls] = useState([]);
@@ -142,20 +143,54 @@ export default function CreateListing() {
     return uploadedImageIds;
   };
 
+  const getGeolocation = async (address) => {
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(address)}`
+      );
+      
+      if (!response.ok) {
+        throw new Error('Geocoding request failed');
+      }
+      
+      const results = await response.json();
+      
+      if (results && results.length > 0) {
+        return {
+          lat: parseFloat(results[0].lat),
+          lng: parseFloat(results[0].lon)
+        };
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      return null;
+    }
+  };
+
   const onSubmit = async (e) => {
     e.preventDefault();
-
+  
     // Validate pricing if there's an offer
     const priceValidation = offer ? discountedPrice < regularPrice : true;
     if (!priceValidation) {
       console.error("Discounted price must be less than regular price");
       return;
     }
-
+  
     // Upload images and get their IDs
     const uploadedImageIds = await handleImageUpload();
     if (!uploadedImageIds) return; // Exit if upload failed
-
+  
+    // Get geolocation for the address
+    const geocodedLocation = await getGeolocation(address);
+  
+    // Convert geolocation to a string or a specific format
+    const geolocationString = geocodedLocation 
+      ? `${geocodedLocation.lat},${geocodedLocation.lng}`
+      : '0,0';
+  
     // Prepare data for saving to database
     const listingData = {
       type,
@@ -169,10 +204,11 @@ export default function CreateListing() {
       offer,
       regularPrice,
       discountedPrice,
-      images: uploadedImageIds, // Image IDs from Appwrite
-      userId: user.$id, // ID of the current login user
+      images: uploadedImageIds,
+      userId: user.$id,
+      geolocation: geolocationString, // Convert to string
     };
-
+  
     try {
       const response = await listingService.createLitings(listingData);
       console.log("Listing saved successfully:", response);
@@ -181,7 +217,7 @@ export default function CreateListing() {
       console.error("Error saving listing:", error);
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-base-200 py-8">
       <div className="max-w-2xl mx-auto px-4">
