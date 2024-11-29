@@ -223,7 +223,6 @@ const Profile = () => {
                 id={listing.$id}
                 onDelete={() => onDelete(listing.$id)}
                 onEdit={() => onEdit(listing.$id)}
-                className="p-4 border border-base-200 rounded-lg hover:bg-base-200 transition-colors"
               />
             ))}
           </ul>

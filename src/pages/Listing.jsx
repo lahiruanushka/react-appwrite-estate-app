@@ -360,7 +360,7 @@ export default function Listing() {
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                           />
                           <Marker position={[lat, lng]}>
-                            <Popup>{listing.name || "Property Location"}</Popup>
+                            <Popup>{listing.address || "Property Location"}</Popup>
                           </Marker>
                         </MapContainer>
                       );

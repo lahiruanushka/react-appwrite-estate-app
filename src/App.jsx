@@ -16,6 +16,8 @@ import Footer from "./components/Footer";
 import EditListing from "./pages/EditListing";
 import Listing from "./pages/Listing";
 import ScrollToTop from "./components/ScrollToTop";
+import Rent from "./pages/Rent";
+import Sale from "./pages/Sales";
 
 function App() {
   const dispatch = useDispatch();
@@ -35,6 +37,8 @@ function App() {
           path="/category/:categoryName/:listingId"
           element={<Listing />}
         />
+        <Route path="/category/rent" element={<Rent />} />
+        <Route path="/category/sale" element={<Sale />} />
 
         {/* Private Routes */}
         <Route element={<PrivateRoute />}>
