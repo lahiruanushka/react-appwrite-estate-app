@@ -7,8 +7,8 @@ React EstateEase App is a modern real estate web application built with React, R
 ### Home Page
 ![Home Page Screenshot](/screenshots/home-page.png)
 
-### Listings Page
-![Listings Page Screenshot](/screenshots/listings-page.png)
+### Profile Page
+![Listings Page Screenshot](/screenshots/profile-page.png)
 
 ### Single Listing Details
 ![Single Listing Screenshot](/screenshots/single-listing.png)

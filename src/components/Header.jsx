@@ -42,7 +42,7 @@ const Header = () => {
 
   const handleLogout = async () => {
     await dispatch(logout());
-    navigate("/login");
+    navigate("/sign-in");
     setIsProfileDropdownOpen(false);
   };
 
